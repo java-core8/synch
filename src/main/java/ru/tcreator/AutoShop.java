@@ -2,38 +2,45 @@ package ru.tcreator;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AutoShop implements Runnable {
   private ArrayList<Car> autoShop_storage = new ArrayList<>();
   private Map<Long, String> storeQueue = new HashMap<>();
 
   public Car sale() throws InterruptedException {
-    synchronized(this) {
+    Lock lock = new ReentrantLock(true);
+    Condition condition = lock.newCondition();
+      try {
 
       while (true) {
         TimeUnit.MILLISECONDS.sleep(5000);
         int size_shop = autoShop_storage.size();
         String currentThreadName = Thread.currentThread().getName();
         try {
+          lock.lock();
           if (size_shop > 0) {
-            notify();
+            condition.signal();
             System.out.println("Авто куплено покупателем: " + currentThreadName);
             Car buyingCar = autoShop_storage.get(size_shop - 1);
             autoShop_storage.remove(size_shop - 1);
-            printQue();
             return buyingCar;
           } else {
             System.out.println("Ожидает : " + currentThreadName);
             storeQueue.put(Thread.currentThread().getId(), currentThreadName);
-            printQue();
-            wait();
-          }
 
+            condition.await();
+          }
+          printQue();
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
       }
-    }
+    } finally {
+        lock.unlock();
+      }
   }
 
   private void printQue() {

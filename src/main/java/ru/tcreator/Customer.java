@@ -1,7 +1,5 @@
 package ru.tcreator;
 
-import java.util.concurrent.TimeUnit;
-
 public class Customer implements Runnable {
   protected Car carOwner = null;
   final private AutoShop shop;
