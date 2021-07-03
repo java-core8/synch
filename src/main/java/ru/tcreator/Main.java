@@ -18,5 +18,6 @@ public class Main {
     executorService.execute(new Customer(autoShop));
 
     executorService.execute(autoShop);
+    executorService.shutdown();
   }
 }

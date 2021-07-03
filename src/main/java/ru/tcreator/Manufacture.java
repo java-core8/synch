@@ -5,24 +5,14 @@ import java.util.stream.Collectors;
 
 public class Manufacture extends Thread {
   static ArrayList<Car> storage = new ArrayList<>();
-  final int MAX_VALUE_IN_STORAGE = 5;
+  final int MAX_VALUE_IN_STORAGE = 5; // количество машигн на складе производства
+
   @Override
   public void run() {
-    final int DELAY_CHECK_STORAGE = 200;      // задержка проверки склада на укомплектованность
-
-    while (true) {
-      if (isInterrupted()) {
-        break;
-      }
-      try {
-        Thread.sleep(DELAY_CHECK_STORAGE);
-        if(storage.size() < MAX_VALUE_IN_STORAGE ) {
-          createCar();
-        }
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+    while (storage.size() < MAX_VALUE_IN_STORAGE) {
+      createCar();
     }
+    System.out.println("Завод встал, склад переполнен");
   }
 
   /**
@@ -36,7 +26,6 @@ public class Manufacture extends Thread {
       int carProdStatus = 0;                      // аккумулятор процесса сборки
       while(carProdStatus++ < 100) {              // эмулируем проуесс сборки и отправки на склад
         try {
-
           newCar.setProcess(carProdStatus);
           System.out.print(".");
           Thread.sleep(DELAY_STAGES);
@@ -61,14 +50,11 @@ public class Manufacture extends Thread {
     ArrayList<Car> createdCars = storage.stream()
             .filter(car -> car.getStatus() == Status.DELIVERED)
             .collect(Collectors.toCollection(ArrayList::new));
-    if (createdCars.size() < 1) { // коли кареты готовые есть - отослать покупателю, а коли нет, отослать покупателя
-      System.out.println("на складе пусто");
-      return new ArrayList<>();
+    if (createdCars.size() < 1) {           // коли кареты готовые есть - отослать в салон
+      return null;
     }
 
-    for (int i = createdCars.size() - 1; i >= 0; i--) {
-      storage.remove(i);
-    }
+    storage.subList(0, createdCars.size()).clear();
     System.out.println("Со склада изъято " + createdCars.size() + " машин " + "остаток на складе " + storage.size());
     return createdCars;
   }
