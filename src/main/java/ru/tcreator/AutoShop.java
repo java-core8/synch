@@ -35,30 +35,18 @@ public class AutoShop implements Runnable {
   @Override
   public void run() {
     while (autoShop_storage.size() < 5) {
-      final int WAITING_CHECK = 1000;
-//      try {
-      int size_park = autoShop_storage.size();
-      if (size_park < 5) {
-        ArrayList<Car> tmpStorage = Manufacture.getCars();
-        if (tmpStorage != null) {
-          lock.lock();
-          try {
-            autoShop_storage.addAll(tmpStorage);
-            System.out.println("На стоянке магазина " + autoShop_storage.size() + " карет");
-            condition.signal();
-          } finally {
-            lock.unlock();
-          }
+      ArrayList<Car> tmpStorage = Manufacture.getCars();
+      if (tmpStorage != null) {
+        lock.lock();
+        try {
+          autoShop_storage.addAll(tmpStorage);
+          System.out.println("На стоянке магазина " + autoShop_storage.size() + " карет");
+          condition.signal();
+        } finally {
+          lock.unlock();
         }
       }
-//        TimeUnit.MILLISECONDS.sleep(WAITING_CHECK);
-//      } catch (InterruptedException e) {
-//        e.printStackTrace();
-//      }
-//    }
-
     }
     System.out.println("Стоянка автосалона заполнена. ");
   }
-
 }

@@ -1,10 +1,11 @@
 package ru.tcreator;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class Manufacture extends Thread {
-  static ArrayList<Car> storage = new ArrayList<>();
+  static CopyOnWriteArrayList<Car> storage = new CopyOnWriteArrayList<>();
   final int MAX_VALUE_IN_STORAGE = 5; // количество машигн на складе производства
 
   @Override
@@ -45,7 +46,7 @@ public class Manufacture extends Thread {
    * Проверяем есть готовые кареты на складе и возвращаем список
    * @return {@link ArrayList<Car>}
    */
-  static public ArrayList<Car> getCars() {
+  static public synchronized ArrayList<Car> getCars() {
 
     ArrayList<Car> createdCars = storage.stream()
             .filter(car -> car.getStatus() == Status.DELIVERED)
@@ -55,6 +56,7 @@ public class Manufacture extends Thread {
     }
 
     storage.subList(0, createdCars.size()).clear();
+
     System.out.println("Со склада изъято " + createdCars.size() + " машин " + "остаток на складе " + storage.size());
     return createdCars;
   }
